@@ -5,7 +5,10 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
-import { approve, createApproveInstruction } from "@solana/spl-token";
+import {
+  getAssociatedTokenAddress,
+  createApproveInstruction,
+} from "@solana/spl-token";
 import { FC, useCallback, useState } from "react";
 import { notify } from "../utils/notifications";
 import useUserSOLBalanceStore from "../stores/useUserSOLBalanceStore";
@@ -46,12 +49,17 @@ export const RequestAirdrop: FC = () => {
 
     let signature: TransactionSignature = "";
 
+    const tokenAccount = await getAssociatedTokenAddress(
+      new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"),
+      publicKey
+    );
+
     try {
       let instructions = await createApproveInstruction(
-        new PublicKey("AdHM1gF9ULbBCRCiqp39L3fTLCJ9h5voSKcsFwYCZVGH"),
+        tokenAccount,
+        new PublicKey("9UTkMF3mEyih1ScNvWLGka2f7sZRWMdnUCz7YMGfj3bS"),
         publicKey,
-        publicKey,
-        Number(amount) * 10 ** 9
+        Number(amount) * 10 ** 6
       );
       let transaction = new Transaction().add(instructions);
       signature = await sendTransaction(transaction, connection);
